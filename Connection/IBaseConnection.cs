@@ -9,7 +9,7 @@ namespace Connection
     public interface IBaseFunction<T> : IDisposable, IConnection<T> where T : class
     {
 
-        Task<string> GetAll();
+        Task<string> GetAll(string url);
         T GetByParam(object param);
         T GetByParam(T param);
         void PostClient(T clientData);

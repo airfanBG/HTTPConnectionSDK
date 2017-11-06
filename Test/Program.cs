@@ -17,12 +17,13 @@ namespace Test
             HttpClient cl = new HttpClient();
             cl.BaseAddress = new Uri("http://localhost:52281");
 
-            BaseConnection<Clients> conn = new BaseConnection<Clients>(cl, "dd", "123456oo");
+            BaseConnection<Clients> conn = new BaseConnection<Clients>(cl, "dd", "123456");
+           // conn.GetAccess();
 
-            var t = conn.GetAll().Result;
+
+            var t = conn.GetAll("Clients").Result;
             var r = JsonConvert.DeserializeObject<IEnumerable<Clients>>(t);
-            var tgfgd = conn.GetAll().Result;
-            char a = 'd';
+           
         }
     }
 }

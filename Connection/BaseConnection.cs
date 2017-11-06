@@ -7,9 +7,15 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace Connection
 {
+    /// <summary>
+    /// Create connection to Db where T is some model
+    /// </summary>
+    /// <typeparam name="T">T is some model class </typeparam>
+  
     public class BaseConnection<T> : HttpClient, IBaseFunction<T> where T : class
 
     {
@@ -17,6 +23,7 @@ namespace Connection
         private static HttpResponseMessage respMsg;
         private string user;
         private string password;
+        private string token;
 
         public BaseConnection(HttpClient address, string user, string password)
         {
@@ -24,7 +31,9 @@ namespace Connection
             httpClientConnection.BaseAddress = new Uri(address.BaseAddress.AbsoluteUri);
             this.user = user;
             this.password = password;
-            GetAccess(user, password);
+           
+
+               GetAccess(user, password);
         }
        
         private HttpStatusCode GetAccess(string user, string password)
@@ -44,8 +53,8 @@ namespace Connection
                 var resJson = respMsg.Content.ReadAsStringAsync();
                 var jToken = JObject.Parse(resJson.Result);
                 var token = jToken.GetValue("access_token").ToString();
-
-                httpClientConnection.DefaultRequestHeaders.Add("Authorization", "Bearer" + token);
+                //this.token = token;
+                httpClientConnection.DefaultRequestHeaders.Add("Authorization", "Bearer " + token);
                 return HttpStatusCode.OK;
             }
             catch (Exception)
@@ -58,18 +67,17 @@ namespace Connection
         }
 
 
-        public Task<string> GetAll()
+        public Task<string> GetAll(string url)
         {
-            
-                httpClientConnection.DefaultRequestHeaders.Accept.Clear();
-                httpClientConnection.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
 
+            httpClientConnection.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+          
             try
             {
-                httpClientConnection.DefaultRequestHeaders.Add("Authorization", "Bearer" + httpClientConnection.DefaultRequestHeaders.Authorization.Parameter);
-                HttpResponseMessage resp = httpClientConnection.GetAsync(httpClientConnection.BaseAddress.AbsoluteUri + "/api" + "/clients").Result;
+                
+                 respMsg = httpClientConnection.GetAsync(httpClientConnection.BaseAddress.AbsoluteUri + "api" + "/"+url).Result;
 
-                var result = resp.Content.ReadAsAsync<IEnumerable<T>>().Result;
+                var result = respMsg.Content.ReadAsAsync<IEnumerable<T>>().Result;
                 var jsonResult = Task.Run(() => JsonConvert.SerializeObject(result));
 
                 return jsonResult;
