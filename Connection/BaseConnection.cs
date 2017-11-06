@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Formatting;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
@@ -23,7 +24,7 @@ namespace Connection
         private static HttpResponseMessage respMsg;
         private string user;
         private string password;
-        private string token;
+        private URLLinks<T> directLinkToModel;
 
         public BaseConnection(HttpClient address, string user, string password)
         {
@@ -31,9 +32,9 @@ namespace Connection
             httpClientConnection.BaseAddress = new Uri(address.BaseAddress.AbsoluteUri);
             this.user = user;
             this.password = password;
-           
 
-               GetAccess(user, password);
+            directLinkToModel = new URLLinks<T>(address.BaseAddress.AbsoluteUri);
+            GetAccess(user, password);
         }
        
         private HttpStatusCode GetAccess(string user, string password)
@@ -75,11 +76,11 @@ namespace Connection
             try
             {
                 
-                 respMsg = httpClientConnection.GetAsync(httpClientConnection.BaseAddress.AbsoluteUri + "api" + "/"+url).Result;
+                 respMsg = httpClientConnection.GetAsync(directLinkToModel.UriPath.BaseAddress.AbsoluteUri).Result;
 
                 var result = respMsg.Content.ReadAsAsync<IEnumerable<T>>().Result;
                 var jsonResult = Task.Run(() => JsonConvert.SerializeObject(result));
-
+             
                 return jsonResult;
             }
             catch (Exception e)
@@ -92,7 +93,27 @@ namespace Connection
 
         public void PostClient(T clientData)
         {
-            throw new NotImplementedException();
+            try
+            {
+                httpClientConnection.DefaultRequestHeaders.Accept.Clear();
+
+                httpClientConnection.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+                
+                string json = JsonConvert.SerializeObject(clientData);
+                StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                respMsg = httpClientConnection.PostAsJsonAsync<T>("http://localhost:52281/api/clients/", clientData).Result;
+
+                if (!respMsg.IsSuccessStatusCode)
+                {
+                    throw new Exception(respMsg.ReasonPhrase);
+                }
+            }
+            catch (Exception e)
+            {
+
+                throw new Exception(e.Message);
+            }
         }
 
         public void PutClient(string clienttoken, T clientData)
