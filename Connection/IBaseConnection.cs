@@ -10,8 +10,6 @@ namespace Connection
     {
 
         Task<string> GetAll(string url);
-        T GetByParam(object param);
-        T GetByParam(T param);
         void PostClient(T clientData);
         void PutClient(string clienttoken, T clientData);
         void Delete(string clienttoken);

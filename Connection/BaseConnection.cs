@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using ActivityRegister.Utility;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -25,18 +26,29 @@ namespace Connection
         private string user;
         private string password;
         private URLLinks<T> directLinkToModel;
+        private StatisticUtility statistic;
+        private HttpMethod method;
 
         public BaseConnection(HttpClient address, string user, string password)
         {
             httpClientConnection = new HttpClient();
+            statistic = new StatisticUtility();
+           
             httpClientConnection.BaseAddress = new Uri(address.BaseAddress.AbsoluteUri);
             this.user = user;
             this.password = password;
 
             directLinkToModel = new URLLinks<T>(address.BaseAddress.AbsoluteUri);
             GetAccess(user, password);
+           
+
         }
+        
+#region
        
+        public StatisticUtility Statistic { get { return this.statistic; }set { this.statistic = value; } }
+
+        #endregion
         private HttpStatusCode GetAccess(string user, string password)
         {
             var uri = httpClientConnection.BaseAddress.AbsoluteUri;
@@ -72,20 +84,23 @@ namespace Connection
         {
 
             httpClientConnection.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
-          
+            
             try
             {
-                
-                 respMsg = httpClientConnection.GetAsync(directLinkToModel.UriPath.BaseAddress.AbsoluteUri).Result;
+                respMsg = httpClientConnection.GetAsync(directLinkToModel.UriPath.BaseAddress.AbsoluteUri).Result;
 
+                var method = respMsg.RequestMessage.Method;
+                AllData(method);
+                
                 var result = respMsg.Content.ReadAsAsync<IEnumerable<T>>().Result;
                 var jsonResult = Task.Run(() => JsonConvert.SerializeObject(result));
              
+
                 return jsonResult;
             }
             catch (Exception e)
             {
-
+                Statistic.GetError(e.Message);
                 return Task.Run(() => String.Format("Unauthorized {0}",e.Message));
             }
             
@@ -104,6 +119,9 @@ namespace Connection
 
                 respMsg = httpClientConnection.PostAsJsonAsync<T>("http://localhost:52281/api/clients/", clientData).Result;
 
+                var method = respMsg.RequestMessage.Method;
+                AllData(method);
+
                 if (!respMsg.IsSuccessStatusCode)
                 {
                     throw new Exception(respMsg.ReasonPhrase);
@@ -111,28 +129,91 @@ namespace Connection
             }
             catch (Exception e)
             {
-
+                Statistic.GetError(e.Message);
                 throw new Exception(e.Message);
             }
         }
 
         public void PutClient(string clienttoken, T clientData)
         {
+            var method = respMsg.RequestMessage.Method;
+            AllData(method);
+
+            try
+            {
+
+            }
+            catch (Exception e)
+            {
+
+                Statistic.GetError(e.Message);
+                throw new Exception(e.Message);
+            }
             throw new NotImplementedException();
         }
         public void Delete(string clienttoken)
         {
-            throw new NotImplementedException();
+            var method = respMsg.RequestMessage.Method;
+            AllData(method);
+
+            try
+            {
+
+            }
+            catch (Exception e)
+            {
+
+                Statistic.GetError(e.Message);
+                throw new Exception(e.Message);
+            }
         }
 
-        public T GetByParam(object param)
+       
+        public T GetByParam(string id)
         {
-            throw new NotImplementedException();
+            var method = respMsg.RequestMessage.Method;
+            AllData(method);
+
+           
+            try
+            {
+                respMsg = httpClientConnection.GetAsync(directLinkToModel.UriPath.BaseAddress.AbsoluteUri).Result;
+
+                var result = respMsg.Content.ReadAsAsync<IEnumerable<T>>().Result;
+
+                T model = Activator.CreateInstance<T>();
+
+                foreach (var item in result)
+                {
+                   var t= item.GetType().GetProperty("Id").GetValue(item);
+                    if (id==t.ToString())
+                    {
+                        model = item;
+                    }
+                }
+
+
+                return model;
+
+            }
+            catch (Exception e)
+            {
+
+                Statistic.GetError(e.Message);
+                throw new Exception(e.Message);
+            }
+        }
+        private void AllData(HttpMethod method)
+        {
+            Statistic.GetRequestType(respMsg.RequestMessage.Method);
+            Statistic.GetRequestType(method);
+            Statistic.GetMethodName(this.GetType().Name);
+            Statistic.GetDateOfRequest(DateTime.UtcNow);
+            Statistic.GetMacAddress();
+            Statistic.GetMachineName();
+            
         }
 
-        public T GetByParam(T param)
-        {
-            throw new NotImplementedException();
-        }
+        
     }
 }

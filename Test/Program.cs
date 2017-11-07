@@ -15,13 +15,13 @@ namespace Test
     {
         static void Main(string[] args)
         {
-            // HttpClient cl = new HttpClient();
-            // cl.BaseAddress = new Uri("http://localhost:52281");
+            HttpClient cl = new HttpClient();
+            cl.BaseAddress = new Uri("http://localhost:52281");
 
-            // BaseConnection<Clients> conn = new BaseConnection<Clients>(cl, "dd", "123456");
-            // // conn.GetAccess();
+            BaseConnection<Clients> conn = new BaseConnection<Clients>(cl, "dd", "123456");
+            // conn.GetAccess();
 
-            // Clients client = new Clients();
+            Clients client = new Clients();
             // //ClientEquipments ew = new ClientEquipments();
             // //ew.Id = 1;
             // //ew.Model = "inte";
@@ -38,13 +38,15 @@ namespace Test
             // client.CreatedOn = DateTime.Now;
             // client.ApplicationUserID = "aea8cc7e-95e9-4049-ab59-189f9c522758";
             // client.ClientToken = Guid.NewGuid().ToString();
-            //// var t = conn.GetAll("Clients").Result;
-            //// var r = JsonConvert.DeserializeObject<IEnumerable<Clients>>(t);
+            //var t = conn.GetAll("Clients").Result;
+            //var r = JsonConvert.DeserializeObject<IEnumerable<Clients>>(t);
             // conn.PostClient(client);
+            var res=conn.GetByParam("1");
 
-            StatisticUtility st = new StatisticUtility();
-            var t=st.GetMachineName();
-            var mac = st.GetMacAddress();
+            //StatisticUtility st = new StatisticUtility();
+            //var t = st.GetMachineName();
+            //var mac = st.GetMacAddress();
+
         }
     }
 }
