@@ -30,17 +30,17 @@ namespace Connection
         private string user;
         private string password;
         private URLLinks<T> directLinkToModel;
-        private StatisticUtility stat;
-        private StatisticDbConnection db;
-        private Statistic statistic;
+        private IStatistic<T> stat;
+        private StatisticDbConnection<T> db;
+        private IEntity<T> statistic;
 
         public BaseConnection(HttpClient address, string user, string password)
         {
             httpClientConnection = new HttpClient();
            
-            stat = new StatisticUtility();
-            statistic = new Statistic();
-            db = new StatisticDbConnection();
+            stat = new StatisticUtility<T>();
+            statistic = new Statistic<T>();
+            db = new StatisticDbConnection<T>();
 
             httpClientConnection.BaseAddress = new Uri(address.BaseAddress.AbsoluteUri);
             this.user = user;
@@ -54,7 +54,7 @@ namespace Connection
         
 #region
        
-        public StatisticUtility Statistic { get { return this.stat; }set { this.stat = value; } }
+        public StatisticUtility<T> Statistic { get; set; }
 
        
         private HttpStatusCode GetAccess(string user, string password)
@@ -186,15 +186,16 @@ namespace Connection
             var requestMethod = respMsg.RequestMessage.Method;
             var functionName = System.Reflection.MethodBase.GetCurrentMethod().Name;
 
-            AllData(requestMethod, functionName);
-
-            var uri = String.Format(directLinkToModel.UriPath.BaseAddress.AbsoluteUri + "/" + id);
-
-            respMsg = httpClientConnection.DeleteAsync(uri).Result;
-            
+          
            
             try
             {
+                AllData(requestMethod, functionName);
+
+                var uri = String.Format(directLinkToModel.UriPath.BaseAddress.AbsoluteUri + "/" + id);
+
+                respMsg = httpClientConnection.DeleteAsync(uri).Result;
+
             }
             catch (Exception e)
             {
@@ -247,7 +248,7 @@ namespace Connection
         private void AllData(HttpMethod requestMethod, string functionName)
         {
             
-            statistic.MachineId = stat.GetMacAddress();
+            statistic.MachineId =stat.GetMacAddress();
             statistic.DateOfRequest = stat.GetDateOfRequest(DateTime.UtcNow);
             statistic.Error = stat.Error;
             statistic.RequestType = stat.GetMethodName(requestMethod.Method);
@@ -256,7 +257,7 @@ namespace Connection
             statistic.RequestModel = stat.GetMethodName(functionName);
            
 
-            db.Statistics.Add(statistic);
+            db.Entity.Add(statistic);
             db.SaveChanges();
         }
 

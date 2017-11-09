@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ActivityRegister.Models
 {
-    public class Statistic<T>: IEntity<T> where T: class
+   public class Deleted<T>:IEntity<T> where T: class
     {
         public int Id { get; set; }
         public string RequestType { get; set; }
@@ -17,6 +17,5 @@ namespace ActivityRegister.Models
         public DateTime DateOfRequest { get; set; }
         public string Error { get; set; }
         public string UserName { get; set; }
-
     }
 }

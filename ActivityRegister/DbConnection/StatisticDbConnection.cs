@@ -6,16 +6,16 @@ namespace ActivityRegister.DbConnection
     using System.Data.Entity;
     using System.Linq;
 
-    public class StatisticDbConnection : DbContext
+    public class StatisticDbConnection<T> : DbContext where T:class
     {
         
         public StatisticDbConnection()
             : base("StatisticDbConnection")
         {
-            Database.SetInitializer(new MigrateDatabaseToLatestVersion<StatisticDbConnection, Configuration>());
+            Database.SetInitializer(new MigrateDatabaseToLatestVersion<StatisticDbConnection<T>, Configuration<T>>());
         }
 
-        public IDbSet<Statistic> Statistics { get; set; }
+        public IDbSet<IEntity<T>> Entity { get; set; }
     }
 
 }

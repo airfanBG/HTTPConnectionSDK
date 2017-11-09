@@ -22,7 +22,7 @@ namespace Test
 
 
             Clients client = new Clients();
-            client.Name = "Airfan1234";
+            client.Name = "Airfan";
             ClientEquipments ew = new ClientEquipments();
             ew.Id = 1;
             ew.Model = "inte";
@@ -42,9 +42,9 @@ namespace Test
             client.ClientToken = Guid.NewGuid().ToString();
             //var t = conn.GetAll("Clients").Result;
             //var r = JsonConvert.DeserializeObject<IEnumerable<Clients>>(t);
-            //conn.PostClient(client);
+            conn.PostClient(client);
             //conn.Delete("f2f4f43a-1e0e-461a-9707-30ea818187e9");
-            conn.PutClient(18, client);
+            //conn.PutClient(18, client);
             //StatisticUtility st = new StatisticUtility();
             //var t = st.GetMachineName();
             //var mac = st.GetMacAddress();
