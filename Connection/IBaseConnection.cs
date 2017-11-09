@@ -11,7 +11,7 @@ namespace Connection
 
         Task<string> GetAll(string url);
         void PostClient(T clientData);
-        void PutClient(string clienttoken, T clientData);
-        void Delete(string clienttoken);
+        void PutClient(int id, T clientData);
+        void Delete(int id);
     }
 }

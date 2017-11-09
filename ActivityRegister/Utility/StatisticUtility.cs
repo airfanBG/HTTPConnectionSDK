@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using ActivityRegister.DbConnection;
+using ActivityRegister.Models;
+using System;
 using System.Net.Http;
 using System.Net.NetworkInformation;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web;
 
 namespace ActivityRegister.Utility
 {
@@ -18,8 +15,14 @@ namespace ActivityRegister.Utility
         public DateTime DateOfRequest { get; set; }
         public string Error { get; set; }
 
+        public StatisticUtility()
+        {
+
+        }
+
         public string GetMacAddress()
         {
+           
             NetworkInterface[] nics = NetworkInterface.GetAllNetworkInterfaces();
             String sMacAddress = string.Empty;
             foreach (NetworkInterface adapter in nics)
@@ -29,7 +32,7 @@ namespace ActivityRegister.Utility
                     sMacAddress = adapter.GetPhysicalAddress().ToString();
                 }
             }
-            MacAddress = sMacAddress;
+         
             return sMacAddress;
         }
         public string[] GetMachineName()
