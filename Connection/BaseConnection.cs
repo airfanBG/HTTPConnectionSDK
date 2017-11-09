@@ -1,4 +1,5 @@
 ﻿using ActivityRegister.DbConnection;
+using ActivityRegister.Models;
 using ActivityRegister.Utility;
 using Database;
 using Newtonsoft.Json;
@@ -31,12 +32,15 @@ namespace Connection
         private URLLinks<T> directLinkToModel;
         private StatisticUtility stat;
         private StatisticDbConnection db;
+        private Statistic statistic;
 
         public BaseConnection(HttpClient address, string user, string password)
         {
             httpClientConnection = new HttpClient();
            
             stat = new StatisticUtility();
+            statistic = new Statistic();
+            db = new StatisticDbConnection();
 
             httpClientConnection.BaseAddress = new Uri(address.BaseAddress.AbsoluteUri);
             this.user = user;
@@ -76,7 +80,8 @@ namespace Connection
             }
             catch (Exception)
             {
-
+                statistic.Error = HttpStatusCode.Unauthorized.ToString();
+                db.SaveChanges();
                 return HttpStatusCode.Unauthorized;
             }
               
@@ -107,7 +112,8 @@ namespace Connection
             }
             catch (Exception e)
             {
-                Statistic.GetError(e.Message);
+                statistic.Error = e.Message;
+                db.SaveChanges();
                 return Task.Run(() => String.Format("Unauthorized {0}",e.Message));
             }
             
@@ -133,12 +139,17 @@ namespace Connection
 
                 if (!respMsg.IsSuccessStatusCode)
                 {
+                    statistic.Error = respMsg.RequestMessage.ToString();
+                    db.SaveChanges();
                     throw new Exception(respMsg.ReasonPhrase);
                 }
             }
             catch (Exception e)
             {
-                Statistic.GetError(e.Message);
+
+                statistic.Error = e.Message;
+              
+                db.SaveChangesAsync();
                 throw new Exception(e.Message);
             }
         }
@@ -148,7 +159,7 @@ namespace Connection
             var requestMethod = respMsg.RequestMessage.Method;
             var functionName = System.Reflection.MethodBase.GetCurrentMethod().Name;
 
-            AllData(requestMethod, functionName);
+           
 
             httpClientConnection.DefaultRequestHeaders.Accept.Clear();
             httpClientConnection.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
@@ -158,11 +169,14 @@ namespace Connection
                 var content = new StringContent(JsonConvert.SerializeObject(clientData), Encoding.UTF8, "application/json");
                
                 var t = httpClientConnection.PutAsJsonAsync(directLinkToModel.UriPath.BaseAddress.AbsoluteUri + "/" + id, content).Result;
+                AllData(requestMethod, functionName);
             }
             catch (Exception e)
             {
 
-                Statistic.GetError(e.Message);
+                statistic.Error = e.Message;
+
+                db.SaveChangesAsync();
                 throw new Exception(e.Message);
             }
            
@@ -184,8 +198,9 @@ namespace Connection
             }
             catch (Exception e)
             {
+                statistic.Error = e.Message;
 
-                Statistic.GetError(e.Message);
+                db.SaveChangesAsync();
                 throw new Exception(e.Message);
             }
         }
@@ -222,24 +237,26 @@ namespace Connection
             }
             catch (Exception e)
             {
+                statistic.Error = e.Message;
 
-                Statistic.GetError(e.Message);
+                db.SaveChangesAsync();
                 throw new Exception(e.Message);
             }
         }
         #endregion
         private void AllData(HttpMethod requestMethod, string functionName)
         {
-             ActivityRegister.Models.Statistic res = new ActivityRegister.Models.Statistic();
-            res.MachineId = stat.GetMacAddress();
-            res.DateOfRequest = stat.GetDateOfRequest(DateTime.UtcNow);
-            res.Error = stat.Error;
-            res.RequestType = stat.GetMethodName(requestMethod.Method);
-            res.ComputerName = stat.GetMachineName()[0];
-            res.UserName = stat.GetMachineName()[1];
-            res.RequestModel = stat.GetMethodName(functionName);
-            db = new StatisticDbConnection();
-            db.Statistics.Add(res);
+            
+            statistic.MachineId = stat.GetMacAddress();
+            statistic.DateOfRequest = stat.GetDateOfRequest(DateTime.UtcNow);
+            statistic.Error = stat.Error;
+            statistic.RequestType = stat.GetMethodName(requestMethod.Method);
+            statistic.ComputerName = stat.GetMachineName()[0];
+            statistic.UserName = stat.GetMachineName()[1];
+            statistic.RequestModel = stat.GetMethodName(functionName);
+           
+
+            db.Statistics.Add(statistic);
             db.SaveChanges();
         }
 
