@@ -40,9 +40,9 @@ namespace Test
 
             client.ApplicationUserID = "aea8cc7e-95e9-4049-ab59-189f9c522758";
             client.ClientToken = Guid.NewGuid().ToString();
-            //var t = conn.GetAll("Clients").Result;
+            var t = conn.GetAll("Clients").Result;
             //var r = JsonConvert.DeserializeObject<IEnumerable<Clients>>(t);
-            conn.PostClient(client);
+           // conn.PostClient(client);
             //conn.Delete("f2f4f43a-1e0e-461a-9707-30ea818187e9");
             //conn.PutClient(18, client);
             //StatisticUtility st = new StatisticUtility();

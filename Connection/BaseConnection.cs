@@ -30,17 +30,17 @@ namespace Connection
         private string user;
         private string password;
         private URLLinks<T> directLinkToModel;
-        private IStatistic<T> stat;
-        private StatisticDbConnection<T> db;
-        private IEntity<T> statistic;
+        private IStatistic<T> statistic;
+        private StatisticDbConnection db;
+        private EntityStatistic entity;
 
         public BaseConnection(HttpClient address, string user, string password)
         {
             httpClientConnection = new HttpClient();
            
-            stat = new StatisticUtility<T>();
-            statistic = new Statistic<T>();
-            db = new StatisticDbConnection<T>();
+            statistic = new StatisticUtility<T>();
+            entity = new EntityStatistic();
+            db = new StatisticDbConnection();
 
             httpClientConnection.BaseAddress = new Uri(address.BaseAddress.AbsoluteUri);
             this.user = user;
@@ -80,7 +80,7 @@ namespace Connection
             }
             catch (Exception)
             {
-                statistic.Error = HttpStatusCode.Unauthorized.ToString();
+                entity.Error = HttpStatusCode.Unauthorized.ToString();
                 db.SaveChanges();
                 return HttpStatusCode.Unauthorized;
             }
@@ -112,7 +112,7 @@ namespace Connection
             }
             catch (Exception e)
             {
-                statistic.Error = e.Message;
+                entity.Error = e.Message;
                 db.SaveChanges();
                 return Task.Run(() => String.Format("Unauthorized {0}",e.Message));
             }
@@ -139,7 +139,7 @@ namespace Connection
 
                 if (!respMsg.IsSuccessStatusCode)
                 {
-                    statistic.Error = respMsg.RequestMessage.ToString();
+                    entity.Error = respMsg.RequestMessage.ToString();
                     db.SaveChanges();
                     throw new Exception(respMsg.ReasonPhrase);
                 }
@@ -147,7 +147,7 @@ namespace Connection
             catch (Exception e)
             {
 
-                statistic.Error = e.Message;
+                entity.Error = e.Message;
               
                 db.SaveChangesAsync();
                 throw new Exception(e.Message);
@@ -174,7 +174,7 @@ namespace Connection
             catch (Exception e)
             {
 
-                statistic.Error = e.Message;
+                entity.Error = e.Message;
 
                 db.SaveChangesAsync();
                 throw new Exception(e.Message);
@@ -199,7 +199,7 @@ namespace Connection
             }
             catch (Exception e)
             {
-                statistic.Error = e.Message;
+                entity.Error = e.Message;
 
                 db.SaveChangesAsync();
                 throw new Exception(e.Message);
@@ -238,7 +238,7 @@ namespace Connection
             }
             catch (Exception e)
             {
-                statistic.Error = e.Message;
+                entity.Error = e.Message;
 
                 db.SaveChangesAsync();
                 throw new Exception(e.Message);
@@ -247,17 +247,17 @@ namespace Connection
         #endregion
         private void AllData(HttpMethod requestMethod, string functionName)
         {
-            
-            statistic.MachineId =stat.GetMacAddress();
-            statistic.DateOfRequest = stat.GetDateOfRequest(DateTime.UtcNow);
-            statistic.Error = stat.Error;
-            statistic.RequestType = stat.GetMethodName(requestMethod.Method);
-            statistic.ComputerName = stat.GetMachineName()[0];
-            statistic.UserName = stat.GetMachineName()[1];
-            statistic.RequestModel = stat.GetMethodName(functionName);
+
+            entity.MachineId =statistic.GetMacAddress();
+            entity.DateOfRequest = statistic.GetDateOfRequest(DateTime.UtcNow);
+            entity.Error = statistic.Error;
+            entity.RequestType = statistic.GetMethodName(requestMethod.Method);
+            entity.ComputerName = statistic.GetMachineName()[0];
+            entity.UserName = statistic.GetMachineName()[1];
+            entity.RequestModel = statistic.GetMethodName(functionName);
            
 
-            db.Entity.Add(statistic);
+            db.Entity.Add(entity);
             db.SaveChanges();
         }
 

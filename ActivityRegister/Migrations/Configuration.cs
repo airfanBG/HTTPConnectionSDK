@@ -5,14 +5,14 @@ namespace ActivityRegister.Migrations
     using System.Data.Entity.Migrations;
     using System.Linq;
 
-    internal sealed class Configuration<T> : DbMigrationsConfiguration<ActivityRegister.DbConnection.StatisticDbConnection<T>> where T: class
+    internal sealed class Configuration : DbMigrationsConfiguration<ActivityRegister.DbConnection.StatisticDbConnection> 
     {
         public Configuration()
         {
             AutomaticMigrationsEnabled = true;
         }
 
-        protected override void Seed(ActivityRegister.DbConnection.StatisticDbConnection<T> context)
+        protected override void Seed(ActivityRegister.DbConnection.StatisticDbConnection context)
         {
             //context.Statistics.Add(new Models.Statistic() { ComputerName = "sada", DateOfRequest = DateTime.Now, MachineId = "dsaaa", RequestModel = "dga", RequestType = "dasda", UserName = "dasda" });
             //context.SaveChanges();

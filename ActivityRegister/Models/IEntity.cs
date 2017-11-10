@@ -6,13 +6,12 @@ using System.Threading.Tasks;
 
 namespace ActivityRegister.Models
 {
-    public interface IEntity<T> where T: class
+    public interface IEntity
 
     {
         int Id { get; set; }
         string RequestType { get; set; }
         string RequestModel { get; set; }
-        Entity<T> MyProperty { get; set; }
         string ComputerName { get; set; }
         string MachineId { get; set; }
         DateTime DateOfRequest { get; set; }

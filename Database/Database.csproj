@@ -67,5 +67,11 @@
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ActivityRegister\ActivityRegister.csproj">
+      <Project>{5A4897B7-E9ED-47F2-A798-825861C41EAE}</Project>
+      <Name>ActivityRegister</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
