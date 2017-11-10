@@ -1,19 +1,14 @@
 ﻿using ActivityRegister.DbConnection;
 using ActivityRegister.Models;
 using ActivityRegister.Utility;
-using Database;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Formatting;
-using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
-using System.Web;
 
 namespace Connection
 {
@@ -21,7 +16,7 @@ namespace Connection
     /// Create connection to Db where T is some model
     /// </summary>
     /// <typeparam name="T">T is some model class </typeparam>
-  
+
     public class BaseConnection<T> : HttpClient, IBaseFunction<T> where T : class
 
     {
@@ -88,8 +83,12 @@ namespace Connection
             
         }
 
-
-        public Task<string> GetAll(string url)
+        /// <summary>
+        /// Return all data from current Entity
+        /// </summary>
+        /// <param name="entityName">Entity</param>
+        /// <returns></returns>
+        public string GetAll(string entityName)
         {
 
             httpClientConnection.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
@@ -103,8 +102,8 @@ namespace Connection
 
                
                 
-                var result = respMsg.Content.ReadAsAsync<IEnumerable<T>>().Result;
-                var jsonResult = Task.Run(() => JsonConvert.SerializeObject(result));
+                var result = respMsg.Content.ReadAsAsync<IEnumerable<T>>();
+                var jsonResult = Task.Run(() => JsonConvert.SerializeObject(result)).Result;
              
                 AllData(requestMethod, functionName);
 
@@ -114,7 +113,7 @@ namespace Connection
             {
                 entity.Error = e.Message;
                 db.SaveChanges();
-                return Task.Run(() => String.Format("Unauthorized {0}",e.Message));
+                return String.Format("Unauthorized {0}",e.Message);
             }
             
         }
@@ -158,17 +157,16 @@ namespace Connection
         {
             var requestMethod = respMsg.RequestMessage.Method;
             var functionName = System.Reflection.MethodBase.GetCurrentMethod().Name;
-
-           
-
+            
             httpClientConnection.DefaultRequestHeaders.Accept.Clear();
             httpClientConnection.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
  
             try
             {
-                var content = new StringContent(JsonConvert.SerializeObject(clientData), Encoding.UTF8, "application/json");
+                var content = new StringContent(Task.Run(()=> JsonConvert.SerializeObject(clientData)).Result, Encoding.UTF8, "application/json");
                
-                var t = httpClientConnection.PutAsJsonAsync(directLinkToModel.UriPath.BaseAddress.AbsoluteUri + "/" + id, content).Result;
+                httpClientConnection.PutAsJsonAsync(directLinkToModel.UriPath.BaseAddress.AbsoluteUri + "/" + id, content);
+
                 AllData(requestMethod, functionName);
             }
             catch (Exception e)
@@ -181,20 +179,23 @@ namespace Connection
             }
            
         }
+       
         public void Delete(int id)
         {
             var requestMethod = respMsg.RequestMessage.Method;
             var functionName = System.Reflection.MethodBase.GetCurrentMethod().Name;
-
-          
-           
+            
             try
             {
                 AllData(requestMethod, functionName);
+                
+                var stat= httpClientConnection.DeleteAsync(directLinkToModel.UriPath.BaseAddress.AbsoluteUri + "/" + id).Result;
+                var reqMess = stat.IsSuccessStatusCode;
 
-                var uri = String.Format(directLinkToModel.UriPath.BaseAddress.AbsoluteUri + "/" + id);
-
-                respMsg = httpClientConnection.DeleteAsync(uri).Result;
+                if (reqMess==false||stat.ReasonPhrase=="Internal Server Error")
+                {
+                    throw new Exception(stat.ReasonPhrase);
+                }
 
             }
             catch (Exception e)
@@ -229,6 +230,7 @@ namespace Connection
                     if (id==(int)t)
                     {
                         model = item;
+                        break;
                     }
                 }
 
