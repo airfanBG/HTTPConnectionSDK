@@ -30,7 +30,7 @@ namespace Connection
         private string user;
         private string password;
         private URLLinks<T> directLinkToModel;
-        private IStatistic<T> statistic;
+        private IStatistic statistic;
         private StatisticDbConnection db;
         private EntityStatistic entity;
 
@@ -38,7 +38,7 @@ namespace Connection
         {
             httpClientConnection = new HttpClient();
            
-            statistic = new StatisticUtility<T>();
+            statistic = new StatisticUtility();
             entity = new EntityStatistic();
             db = new StatisticDbConnection();
 
@@ -54,7 +54,7 @@ namespace Connection
         
 #region
        
-        public StatisticUtility<T> Statistic { get; set; }
+        public StatisticUtility Statistic { get; set; }
 
        
         private HttpStatusCode GetAccess(string user, string password)

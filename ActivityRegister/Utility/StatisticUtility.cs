@@ -6,7 +6,7 @@ using System.Net.NetworkInformation;
 
 namespace ActivityRegister.Utility
 {
-    public class StatisticUtility<T>: IStatistic<T> where T: class
+    public class StatisticUtility: IStatistic
     {
         public string MacAddress { get; set; }
         public string[] MachineAndUserName { get; set; }

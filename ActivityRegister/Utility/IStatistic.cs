@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ActivityRegister.Utility
 {
-    public interface IStatistic<T> where T:class
+    public interface IStatistic
     {
         string MacAddress { get; set; }
         string[] MachineAndUserName { get; set; }
