@@ -11,7 +11,7 @@ namespace ActivityRegister.Models
     {
         int Id { get; set; }
         string RequestType { get; set; }
-        string RequestModel { get; set; }
+        string RequestMethod { get; set; }
         string ComputerName { get; set; }
         string MachineId { get; set; }
         DateTime DateOfRequest { get; set; }

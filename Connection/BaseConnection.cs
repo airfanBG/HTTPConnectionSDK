@@ -48,10 +48,6 @@ namespace Connection
         }
         
 #region
-       
-        public StatisticUtility Statistic { get; set; }
-
-       
         private HttpStatusCode GetAccess(string user, string password)
         {
             var uri = httpClientConnection.BaseAddress.AbsoluteUri;
@@ -256,7 +252,7 @@ namespace Connection
             entity.RequestType = statistic.GetMethodName(requestMethod.Method);
             entity.ComputerName = statistic.GetMachineName()[0];
             entity.UserName = statistic.GetMachineName()[1];
-            entity.RequestModel = statistic.GetMethodName(functionName);
+            entity.RequestMethod = statistic.GetMethodName(functionName);
            
 
             db.Entity.Add(entity);
