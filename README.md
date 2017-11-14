@@ -3,3 +3,5 @@
             cl.BaseAddress = new Uri("http://localhost:0000");
            
             BaseConnection<Clients> conn = new BaseConnection<Clients>(cl, "airfan", "123456");
+            
+ActivityRegister creates a new database for all created CRUD operations,user, computer name, date etc.
