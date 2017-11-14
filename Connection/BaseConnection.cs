@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
@@ -95,8 +96,6 @@ namespace Connection
 
                 var requestMethod = respMsg.RequestMessage.Method;
                 var functionName = System.Reflection.MethodBase.GetCurrentMethod().Name;
-
-               
                 
                 var result = respMsg.Content.ReadAsAsync<IEnumerable<T>>();
                 var jsonResult = Task.Run(() => JsonConvert.SerializeObject(result)).Result;
@@ -108,7 +107,8 @@ namespace Connection
             catch (Exception e)
             {
                 entity.Error = e.Message;
-                db.SaveChanges();
+                
+db.SaveChanges();
                 return String.Format("Unauthorized {0}",e.Message);
             }
             
