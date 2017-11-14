@@ -45,7 +45,7 @@ namespace Connection
             directLinkToModel = new URLLinks<T>(address.BaseAddress.AbsoluteUri);
             GetAccess(user, password);
 
-            
+            //
         }
         
 #region
